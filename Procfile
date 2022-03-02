@@ -1,0 +1,1 @@
+web: gunicorn clicOh.wsgi --log-file -
