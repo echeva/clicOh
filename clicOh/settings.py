@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import dj_database_url
+import psycopg2
 
 load_dotenv()
 
@@ -78,7 +79,14 @@ WSGI_APPLICATION = 'clicOh.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-DATABASES = {'default': dj_database_url.parse(os.getenv("DATABASE_URL", 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')), conn_max_age=600, ssl_require=True)}
+
+DATABASE_URL = os.getenv("DATABASE_URL", 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'))
+
+if "sqlite" not in DATABASE_URL:
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+else:
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
