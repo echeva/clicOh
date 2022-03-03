@@ -29,7 +29,7 @@ class Order(models.Model):
     @property
     def get_total(self):
         details = OrderDetail.objects.filter(order=self)
-        return sum([(detail.product.price * detail.quantity) for detail in details])
+        return sum([detail.total_price for detail in details])
 
     @property
     def get_total_usd(self):
@@ -39,7 +39,7 @@ class Order(models.Model):
             for item in json:
                 if item['casa']['nombre'] == "Dolar Blue":
                     return self.get_total * Decimal(item['casa']['compra'].replace(',', '.'))
-
+                
         return 0
 
     class Meta:
@@ -57,7 +57,11 @@ class OrderDetail(models.Model):
     order = models.ForeignKey(Order, related_name="details", verbose_name="Orden", on_delete=models.CASCADE)
     quantity = models.PositiveBigIntegerField(_("Cantidad"), default=0)
     product = models.ForeignKey(Product, verbose_name="Producto", on_delete=models.CASCADE)
-
+    
+    @property
+    def total_price(self):
+        return self.product.price * self.quantity
+    
     class Meta:
         verbose_name = _("Detalle de una orden")
         verbose_name_plural = _("Detalles de una orden")
