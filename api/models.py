@@ -2,6 +2,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from datetime import datetime
+import requests
+from decimal import Decimal
 
 
 # Create your models here.
@@ -23,6 +25,22 @@ class Product(models.Model):
 
 class Order(models.Model):
     date_time = models.DateTimeField(_("Fecha"))
+
+    @property
+    def get_total(self):
+        details = OrderDetail.objects.filter(order=self)
+        return sum([(detail.product.price * detail.quantity) for detail in details])
+
+    @property
+    def get_total_usd(self):
+        response = requests.get("https://www.dolarsi.com/api/api.php?type=valoresprincipales")
+        if response.status_code == 200:
+            json = response.json()
+            for item in json:
+                if item['casa']['nombre'] == "Dolar Blue":
+                    return self.get_total * Decimal(item['casa']['compra'].replace(',', '.'))
+
+        return 0
 
     class Meta:
         verbose_name = _("Orden")
