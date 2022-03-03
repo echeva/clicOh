@@ -33,4 +33,5 @@ class OrderSerializer(serializers.ModelSerializer):
         details = data.pop('details')
         if len(details) == 0:
             raise serializers.ValidationError("La orden debe contener al menos un producto.")
+        
         return data

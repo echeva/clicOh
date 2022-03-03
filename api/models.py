@@ -4,13 +4,14 @@ from django.utils.translation import gettext_lazy as _
 from datetime import datetime
 import requests
 from decimal import Decimal
+from django.core.validators import MinValueValidator
 
 
 # Create your models here.
 class Product(models.Model):
     name = models.CharField(_("Nombre"), max_length=100)
-    price = models.DecimalField(_("Precio"), max_digits=7, decimal_places=2)
-    stock = models.PositiveBigIntegerField(_("Unidades disponibles"), default=0)
+    price = models.DecimalField(_("Precio"), max_digits=7, decimal_places=2, validators=[MinValueValidator(0)])
+    stock = models.PositiveBigIntegerField(_("Unidades disponibles"), default=0, validators=[MinValueValidator(0)])
 
     class Meta:
         verbose_name = _("Producto")
@@ -21,6 +22,15 @@ class Product(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.name
+
+    def can_decrease_stock(self, quantity):
+        return self.stock - quantity >= 0
+
+    def decrease_stock(self, quantity):
+        self.stock -= quantity
+
+    def restore_stock(self, quantity):
+        self.stock += quantity
 
 
 class Order(models.Model):
@@ -55,7 +65,7 @@ class Order(models.Model):
 
 class OrderDetail(models.Model):
     order = models.ForeignKey(Order, related_name="details", verbose_name="Orden", on_delete=models.CASCADE)
-    quantity = models.PositiveBigIntegerField(_("Cantidad"), default=0)
+    quantity = models.PositiveBigIntegerField(_("Cantidad"), default=0, validators=[MinValueValidator(1)])
     product = models.ForeignKey(Product, verbose_name="Producto", on_delete=models.CASCADE)
     
     @property
