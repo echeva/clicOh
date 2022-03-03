@@ -41,8 +41,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('quantity', models.PositiveBigIntegerField(default=0, verbose_name='Cantidad')),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='details', to='app.order', verbose_name='Orden')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.product', verbose_name='Producto')),
+                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='details', to='api.order', verbose_name='Orden')),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.product', verbose_name='Producto')),
             ],
             options={
                 'verbose_name': 'Detalle de una orden',
