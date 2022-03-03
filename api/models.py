@@ -5,6 +5,7 @@ from datetime import datetime
 import requests
 from decimal import Decimal
 from django.core.validators import MinValueValidator
+from django.db import transaction
 
 
 # Create your models here.
@@ -81,3 +82,4 @@ class OrderDetail(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.pk
+
