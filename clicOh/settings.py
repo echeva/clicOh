@@ -78,8 +78,7 @@ WSGI_APPLICATION = 'clicOh.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-DATABASES = {'default': dj_database_url.parse(os.getenv("DATABASE_URL", 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')), conn_max_age=600)}
-
+DATABASES = {'default': dj_database_url.parse(os.getenv("DATABASE_URL", 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')), conn_max_age=600, ssl_require=True)}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
