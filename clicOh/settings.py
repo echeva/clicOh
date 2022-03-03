@@ -15,6 +15,8 @@ import os
 from dotenv import load_dotenv
 import dj_database_url
 import psycopg2
+from datetime import timedelta
+
 
 load_dotenv()
 
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'api'
 ]
 
@@ -52,7 +55,16 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'UPDATE_LAST_LOGIN': True
 }
 
 MIDDLEWARE = [
@@ -93,7 +105,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", 'sqlite:///' + os.path.join(BASE_DIR, '
 
 if "sqlite" not in DATABASE_URL:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+    DATABASES = {'default': dj_database_url.config(conn_max_age=600, ssl_require=True)}
 else:
     DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 
