@@ -11,7 +11,7 @@ from django.http import Http404
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    queryset = ProductSerializer.Meta.model.objects.all()
+    queryset = ProductSerializer.Meta.model.objects.all().order_by('id')
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -19,7 +19,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
-    queryset = OrderSerializer.Meta.model.objects.all()
+    queryset = OrderSerializer.Meta.model.objects.all().order_by('id')
 
     def destroy(self, request, pk=None, *args, **kwargs):
         try:
