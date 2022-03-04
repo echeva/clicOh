@@ -103,11 +103,25 @@ WSGI_APPLICATION = 'clicOh.wsgi.application'
 
 DATABASE_URL = os.getenv("DATABASE_URL", 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'))
 
-if "sqlite" not in DATABASE_URL:
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)}
-else:
+if DEBUG:
     DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv("NAME"),
+            'USER': os.getenv("USER"),
+            'PASSWORD': os.getenv("PASSWORD"),
+            'HOST': os.getenv("HOST"),
+            'PORT': '5432',
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
+    }
+
+    db_from_env = dj_database_url.config(conn_max_age=600)
+    DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
