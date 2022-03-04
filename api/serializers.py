@@ -66,32 +66,31 @@ class OrderSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, obj, validated_data):
         errors = []
-        print(validated_data)
-        order_details = validated_data.pop('details')
-        if order_details:
-            if self.validate_details(order_details):
-                details = [dict(tuple) for tuple in order_details]
-                for detail in details:
-                    print(detail)
-                    try:
-                        print(detail['product'])
-                        order_detail, created = OrderDetail.objects.get_or_create(order=obj, product=detail['product'])
-                        product = Product.objects.get(pk=detail['product'].id)
-                        if not created:
-                            if order_detail.quantity != detail['quantity']:
-                                product.restore_stock(order_detail.quantity)
+        try:
+            order_details = validated_data.pop('details')
+            if order_details:
+                if self.validate_details(order_details):
+                    details = [dict(tuple) for tuple in order_details]
+                    for detail in details:
+                        try:
+                            order_detail, created = OrderDetail.objects.get_or_create(order=obj, product=detail['product'])
+                            product = Product.objects.get(pk=detail['product'].id)
+                            if not created:
+                                if order_detail.quantity != detail['quantity']:
+                                    product.restore_stock(order_detail.quantity)
+                                    order_detail.quantity = detail['quantity']
+                            else:
                                 order_detail.quantity = detail['quantity']
-                        else:
-                            order_detail.quantity = detail['quantity']
-                        product.decrease_stock(detail['quantity'])
-                        product.save()
-                        order_detail.save()
-                    except Product.DoesNotExist:
-                        errors.append({'error': f"El producto con id {detail['product']} no existe."})
-                    except IntegrityError:
-                        errors.append(
-                            {'error': f'El producto {product.name} con id {product.id} no posee sufiente stock.'})
-
+                            product.decrease_stock(detail['quantity'])
+                            product.save()
+                            order_detail.save()
+                        except Product.DoesNotExist:
+                            errors.append({'error': f"El producto con id {detail['product']} no existe."})
+                        except IntegrityError:
+                            errors.append(
+                                {'error': f'El producto {product.name} con id {product.id} no posee sufiente stock.'})
+        except KeyError:
+            pass
         if not errors:
             obj.save()
         else:
